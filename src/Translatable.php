@@ -77,8 +77,9 @@ trait Translatable
             $this->getLocaleId($locale)
         );
 
-        if ($translation) {
-            return $translation;
+         if ($translation) { 
+            $this->translation = $translation; //Cache current translation.
+            return $translation; 
         }
 
         // Fetch fallback translation if its set in the config.
