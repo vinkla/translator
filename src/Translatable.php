@@ -25,9 +25,9 @@ trait Translatable
     /**
      * The current translation.
      *
-     * @var mixed
+     * @var array
      */
-    protected $translation;
+    protected $cachedTranslations = [];
 
     /**
      * The translation instance.
@@ -67,18 +67,20 @@ trait Translatable
             $this->translatorInstance = new $this->translator();
         }
 
+        $localeId = $this->getLocaleId($locale);
+
         // If there already is a current translation, use it.
-        if ($this->translation) {
-            return $this->translation;
+        if (isset($this->cachedTranslations[$localeId])) {
+            return $this->cachedTranslations[$localeId];
         }
 
         // Fetch the translation by their locale id.
-        $this->translation = $this->getTranslationByLocaleId(
-            $this->getLocaleId($locale)
+        $this->cachedTranslations[$localeId] = $this->getTranslationByLocaleId(
+            $localeId
         );
 
-        if ($this->translation) {
-            return $this->translation;
+        if (isset($this->cachedTranslations[$localeId])) {
+            return $this->cachedTranslations[$localeId];
         }
 
         // Fetch fallback translation if its set in the config.
@@ -89,7 +91,7 @@ trait Translatable
         }
 
         // If we can't find any translation, return a new instance.
-        return $this->newTranslation();
+        return $this->newTranslation(['locale_id' => $this->getLocaleId($locale)]);
     }
 
     /**
@@ -109,7 +111,7 @@ trait Translatable
                 continue;
             }
 
-            $this->translation = $this->getTranslation(false);
+            $this->getTranslation(false);
 
             if ($this->isFillable($key)) {
                 $this->setAttribute($key, $value);
@@ -133,8 +135,8 @@ trait Translatable
     {
         $saved = parent::save($options);
 
-        if ($saved && $this->translation) {
-            $this->translations()->save($this->translation);
+        if ($saved && count($this->cachedTranslations)) {
+            $this->translations()->saveMany($this->cachedTranslations);
         }
 
         return $saved;
@@ -151,7 +153,7 @@ trait Translatable
         $updated = parent::update($attributes);
 
         if ($updated) {
-            $this->translations()->save($this->translation);
+            $this->translations()->saveMany($this->cachedTranslations);
         }
 
         return $updated;
@@ -187,6 +189,16 @@ trait Translatable
 
         return parent::getAttribute($key);
     }
+    
+    /**
+    * Get an attribute array of all arrayable attributes.
+    *
+    * @return array
+    */
+    protected function getArrayableAttributes()
+    {
+        return array_merge(parent::getArrayableAttributes($this->attributes), $this->getTranslation()->getArrayableAttributes());
+    }
 
     /**
      * Fetch the translation by their locale.
@@ -196,10 +208,13 @@ trait Translatable
      */
     private function getTranslationByLocaleId($localeId)
     {
-        return $this->translatorInstance
+        $translation = $this->translatorInstance
             ->where('locale_id', $localeId)
             ->where($this->getForeignKey(), $this->id)
             ->first();
+        $translation->visible = $this->translatedAttributes;
+        
+        return $translation;
     }
 
     /**
@@ -254,12 +269,15 @@ trait Translatable
         $fillable = $this->getParentFillable($translation->getFillable());
 
         $translation->fillable($fillable);
+        $translation->visible = $this->translatedAttributes;
 
         $attributes = array_add($attributes, 'locale_id', $this->getLocaleId());
 
         $translation->fill((array) $attributes);
 
         $translation->exists = $exists;
+
+        $this->cachedTranslations[$attributes['locale_id']] = $translation;
 
         return $translation;
     }
