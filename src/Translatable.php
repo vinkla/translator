@@ -75,11 +75,10 @@ trait Translatable
         }
 
         // Fetch the translation by their locale id.
-        $this->cachedTranslations[$localeId] = $this->getTranslationByLocaleId(
-            $localeId
-        );
+        $translation = $this->getTranslationByLocaleId($localeId);
 
-        if (isset($this->cachedTranslations[$localeId])) {
+        if ($translation) {
+            $this->cachedTranslations[$localeId] = $translation;
             return $this->cachedTranslations[$localeId];
         }
 
@@ -91,7 +90,7 @@ trait Translatable
         }
 
         // If we can't find any translation, return a new instance.
-        return $this->newTranslation(['locale_id' => $this->getLocaleId($locale)]);
+        return $this->newTranslation(['locale_id' => $localeId]);
     }
 
     /**
