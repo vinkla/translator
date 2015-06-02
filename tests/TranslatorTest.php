@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Laravel Translator.
+ * This file is part of Laravel AbstractTranslator.
  *
  * (c) Vincent Klaiber <hello@vinkla.com>
  *
@@ -12,8 +12,8 @@
 namespace Vinkla\Tests\Translator;
 
 use PHPUnit_Framework_TestCase;
-use Vinkla\Translator\Contracts\Translatable as TranslatableContract;
-use Vinkla\Translator\Translatable;
+use Vinkla\Translator\Contracts\TranslatableInterface as TranslatableContract;
+use Vinkla\Translator\TranslatableTrait;
 
 /**
  * This is the translator test class.
@@ -52,7 +52,7 @@ class TranslatorTest extends PHPUnit_Framework_TestCase
 
 class Foo implements TranslatableContract
 {
-    use Translatable;
+    use TranslatableTrait;
 
     public $translator = 'FooTranslation';
 

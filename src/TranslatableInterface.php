@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Laravel Translator.
+ * This file is part of Laravel AbstractTranslator.
  *
  * (c) Vincent Klaiber <hello@vinkla.com>
  *
@@ -9,23 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace Vinkla\Translator\Contracts;
-
-use Vinkla\Translator\Exceptions\TranslatorException;
+namespace Vinkla\Translator;
 
 /**
  * This is the translatable trait interface.
  *
  * @author Vincent Klaiber <hello@vinkla.com>
  */
-interface Translatable
+interface TranslatableInterface
 {
     /**
      * Prepare a translator instance and fetch translations.
      *
      * @param null $locale
      *
-     * @throws \Vinkla\Translator\TranslatorException
+     * @throws \Vinkla\Translator\TranslatableException
      *
      * @return mixed
      */

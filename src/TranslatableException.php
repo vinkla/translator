@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Laravel Translator.
+ * This file is part of Laravel AbstractTranslator.
  *
  * (c) Vincent Klaiber <hello@vinkla.com>
  *
@@ -11,11 +11,14 @@
 
 namespace Vinkla\Translator;
 
+use Exception;
+
 /**
  * This is the translatable exception class.
  *
  * @author Vincent Klaiber <hello@vinkla.com>
  */
-class TranslatableException extends \Exception
+class TranslatableException extends Exception
 {
+    //
 }
