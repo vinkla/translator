@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Laravel Translator.
+ * This file is part of Laravel AbstractTranslator.
  *
  * (c) Vincent Klaiber <hello@vinkla.com>
  *
@@ -27,8 +27,7 @@ class CreateLocalesTable extends Migration
     public function up()
     {
         Schema::create('locales', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('language', 2);
+            $table->string('id', 2)->primary();
             $table->timestamps();
         });
     }

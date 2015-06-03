@@ -11,14 +11,9 @@
 
 namespace Vinkla\Tests\Translator;
 
-use GrahamCampbell\TestBench\Traits\ServiceProviderTestCaseTrait;
+use Illuminate\Database\Eloquent\Model;
 
-/**
- * This is the service provider class.
- *
- * @author Vincent Klaiber <hello@vinkla.com>
- */
-class ServiceProviderTest extends AbstractTestCase
+class ArticleTranslation extends Model
 {
-    use ServiceProviderTestCaseTrait;
+
 }

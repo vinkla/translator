@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Laravel Translator.
+ * This file is part of Laravel AbstractTranslator.
  *
  * (c) Vincent Klaiber <hello@vinkla.com>
  *
@@ -13,27 +13,40 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Locale Eloquent Model
+    | Driver
     |--------------------------------------------------------------------------
     |
-    | This is the Eloquent model that handles what languages you support within
-    | your project. Please provide the full namespaced path.
+    | Select the driver to use to fetch locales with. Either set it to 'file'
+    | or 'database'. Both drivers requires more configuration below.
     |
     */
 
-    'locale' => 'Acme\Locales\Locale',
+    'driver' => 'database',
 
     /*
     |--------------------------------------------------------------------------
-    | Locale Identifier Column
+    | Default Locales
     |--------------------------------------------------------------------------
     |
-    | Specify the column key that you want to compare with when fetching
-    | translations trough the App::getLocale() method.
+    | This is the array of supported locales to translate you eloquent models
+    | in. Please note that this requires the 'file' driver.
     |
     */
 
-    'column' => 'language',
+    'locales' => ['en'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Locale Eloquent Model
+    |--------------------------------------------------------------------------
+    |
+    | This is the full namespaced path to the Eloquent model that handles the
+    | languages you support within your project. Please note that this requires
+    | the 'database' driver.
+    |
+    */
+
+    'model' => 'Acme\Locales\Locale',
 
     /*
     |--------------------------------------------------------------------------

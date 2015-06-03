@@ -125,7 +125,7 @@ class Locale extends Model
 	/**
 	 * @var array
 	 */
-	protected $fillable = ['language'];
+	protected $fillable = ['id'];
 }
 ```
 
@@ -138,12 +138,12 @@ Here's an example of a translatable Laravel Eloquent model. Remember to fill the
 namespace Acme\Articles;
 
 use Illuminate\Database\Eloquent\Model;
-use Vinkla\Translator\Translatable;
-use Vinkla\Translator\Contracts\Translatable as TranslatableContract;
+use Vinkla\Translator\TranslatableTrait;
+use Vinkla\Translator\TranslatableInterface;
 
-class Article extends Model implements TranslatableContract
+class Article extends Model implements TranslatableInterface
 {
-	use Translatable;
+	use TranslatableTrait;
 
 	/**
 	 * @var array
@@ -162,7 +162,8 @@ class Article extends Model implements TranslatableContract
 }
 ```
 
-The ArticleTranslation basically is an empty Eloquent object.
+The `ArticleTranslation` basically is an empty Eloquent object.
+
 ```php
 <?php
 

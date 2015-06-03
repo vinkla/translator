@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Laravel Translator.
+ * This file is part of Laravel AbstractTranslator.
  *
  * (c) Vincent Klaiber <hello@vinkla.com>
  *
@@ -20,12 +20,10 @@ use Illuminate\Support\Facades\Config;
  *
  * @author Vincent Klaiber <hello@vinkla.com>
  */
-trait Translatable
+trait TranslatableTrait
 {
     /**
      * The cached locales.
-     *
-     * @static
      *
      * @var array
      */
@@ -50,7 +48,7 @@ trait Translatable
      *
      * @param null $locale
      *
-     * @throws \Vinkla\Translator\TranslatorException
+     * @throws \Vinkla\Translator\TranslatableException
      *
      * @return mixed
      */
@@ -65,7 +63,7 @@ trait Translatable
      * @param bool $exists
      * @param null $locale
      *
-     * @throws \Vinkla\Translator\TranslatorException
+     * @throws \Vinkla\Translator\TranslatableException
      *
      * @return mixed
      */
@@ -81,36 +79,34 @@ trait Translatable
             // If translations have been eager loaded, copy them to the cache.
             if (array_key_exists('translations', $this->relations)) {
                 foreach ($this->translations as $translation) {
-                    $this->cachedTranslations[$translation->locale_id] = $translation;
+                    $this->cachedTranslations[$translation->locale] = $translation;
                 }
             }
         }
 
-        $localeId = $this->getLocaleId($locale);
+        $locale = $this->getLocale($locale);
 
         // If there already is a current translation, use it.
-        if (isset($this->cachedTranslations[$localeId])) {
-            return $this->cachedTranslations[$localeId];
+        if (isset($this->cachedTranslations[$locale])) {
+            return $this->cachedTranslations[$locale];
         }
 
         // Fetch the translation by their locale id.
-        $translation = $this->getTranslationByLocaleId($localeId);
+        $translation = $this->findByLocale($locale);
 
         if ($translation) {
-            $this->cachedTranslations[$localeId] = $translation;
+            $this->cachedTranslations[$locale] = $translation;
 
-            return $this->cachedTranslations[$localeId];
+            return $this->cachedTranslations[$locale];
         }
 
         // Fetch fallback translation if its set in the config.
-        if ($exists && $this->useFallback()) {
-            return $this->getTranslationByLocaleId(
-                $this->getFallackLocaleId()
-            );
+        if ($exists && $this->fallback()) {
+            return $this->findByLocale($this->getFallackLocale());
         }
 
         // If we can't find any translation, return a new instance.
-        return $this->newTranslation(['locale_id' => $localeId]);
+        return $this->newTranslation(['locale' => $locale]);
     }
 
     /**
@@ -228,16 +224,16 @@ trait Translatable
     }
 
     /**
-     * Fetch the translation by their locale.
+     * Fetch the translation by their locale id.
      *
-     * @param $localeId
+     * @param string $locale
      *
      * @return mixed
      */
-    private function getTranslationByLocaleId($localeId)
+    private function findByLocale($locale)
     {
         $translation = $this->translatorInstance
-            ->where('locale_id', $localeId)
+            ->where('locale', $locale)
             ->where($this->getForeignKey(), $this->id)
             ->first();
 
@@ -249,51 +245,51 @@ trait Translatable
     }
 
     /**
-     * Get the current locale set within the app.
-     *
-     * @param null $locale
-     *
-     * @throws \Vinkla\Translator\TranslatorException
-     *
-     * @return mixed
-     */
-    private function getLocaleId($locale = null)
-    {
-        return $this->getLocale($locale ?: App::getLocale())->id;
-    }
-
-    /**
      * Get the fallback locale set within the app.
      *
      * @return mixed
      */
-    private function getFallackLocaleId()
+    private function getFallackLocale()
     {
-        return $this->getLocaleId(Config::get('app.fallback_locale'));
+        return config('app.fallback_locale');
     }
 
     /**
-     * Fetch a locale by its locale.
+     * Fetch a locale by its id.
      *
-     * @param $locale
+     * @param null $locale
      *
-     * @throws \Vinkla\Translator\TranslatorException
+     * @throws \Vinkla\Translator\TranslatableException
      *
      * @return mixed
      */
-    private function getLocale($locale)
+    private function getLocale($locale = null)
     {
-        if (isset(self::$cachedLocales[$locale])) {
-            return self::$cachedLocales[$locale];
+        $locales = $this->getSupportedLocales();
+
+        // Fetch supported locales.
+        // Check if the exist.
+        // Remember cache.
+    }
+
+    private function getSupportedLocales()
+    {
+        $driver = $this->getDriver();
+
+        if ($driver === 'database') {
+            $locales =
         }
 
-        $localeInstance = $this->getLocaleInstance();
+        if ($driver === 'file') {
+            $locales = config('translator.locales');
+        }
 
-        $column = $this->getLocaleColumn();
+        throw new TranslatableException('Please provide a valid translator driver.');
+    }
 
-        self::$cachedLocales[$locale] = $localeInstance->where($column, $locale)->first();
-
-        return self::$cachedLocales[$locale];
+    private function getDriver()
+    {
+        return config('translator.driver', 'file');
     }
 
     /**
@@ -304,52 +300,25 @@ trait Translatable
      *
      * @return mixed
      */
-    private function newTranslation($attributes = [], $exists = false)
+    private function newTranslation(array $attributes = [], $exists = false)
     {
         $translation = new $this->translatorInstance();
 
         $fillable = $this->getParentFillable($translation->getFillable());
 
         $translation->fillable($fillable);
+
         $translation->visible = $this->translatedAttributes;
 
-        $attributes = array_add($attributes, 'locale_id', $this->getLocaleId());
+        $attributes = array_add($attributes, 'locale', $this->getLocale());
 
-        $translation->fill((array) $attributes);
+        $translation->fill($attributes);
 
         $translation->exists = $exists;
 
-        $this->cachedTranslations[$attributes['locale_id']] = $translation;
+        $this->cachedTranslations[$attributes['locale']] = $translation;
 
         return $translation;
-    }
-
-    /**
-     * Get the locale column key.
-     *
-     * @return string
-     */
-    private function getLocaleColumn()
-    {
-        return Config::get('translator.column') ?: 'language';
-    }
-
-    /**
-     * Fetch the locale instance.
-     *
-     * @throws \Vinkla\Translator\TranslatorException
-     *
-     * @return mixed
-     */
-    private function getLocaleInstance()
-    {
-        if (!Config::has('translator.locale')) {
-            throw new TranslatableException(
-                'Please set the \'locale\' property in the configuration to your Locale model path.'
-            );
-        }
-
-        return App::make(Config::get('translator.locale'));
     }
 
     /**
@@ -363,29 +332,18 @@ trait Translatable
     {
         $fillable = $this->getFillable();
 
-        array_push($fillable, 'locale_id');
+        array_push($fillable, 'locale');
 
         return array_merge($fillable, $defaults);
     }
 
     /**
-     * Check if whether we should fetch the
-     * fallback translation or not.
+     * Check if whether we should fetch the fallback translation or not.
      *
-     * @return mixed
+     * @return bool
      */
-    private function useFallback()
+    private function fallback()
     {
-        return (bool) Config::get('translator.fallback');
-    }
-
-    /**
-     * Setup a one-to-many relation.
-     *
-     * @return mixed
-     */
-    public function translations()
-    {
-        return $this->hasMany($this->translator);
+        return config('translator.fallback', 'false');
     }
 }

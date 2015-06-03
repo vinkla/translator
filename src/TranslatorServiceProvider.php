@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of Laravel Translator.
+ * This file is part of Laravel AbstractTranslator.
  *
  * (c) Vincent Klaiber <hello@vinkla.com>
  *
@@ -39,7 +39,9 @@ class TranslatorServiceProvider extends ServiceProvider
     protected function setupConfig()
     {
         $source = realpath(__DIR__.'/../config/translator.php');
+
         $this->publishes([$source => config_path('translator.php')]);
+
         $this->mergeConfigFrom($source, 'translator');
     }
 
@@ -51,6 +53,7 @@ class TranslatorServiceProvider extends ServiceProvider
     protected function setupMigrations()
     {
         $source = realpath(__DIR__.'/../database/migrations/');
+
         $this->publishes([$source => base_path('/database/migrations')], 'migrations');
     }
 
