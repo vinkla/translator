@@ -146,39 +146,19 @@ trait Translatable
     }
 
     /**
-     * Save the model to the database.
+     * Finish processing on a successful save operation.
      *
-     * @param array $options
+     * @param  array  $options
      *
-     * @return bool
+     * @return void
      */
-    public function save(array $options = [])
+    public function finishSave(array $options)
     {
-        $saved = parent::save($options);
-
-        if ($saved && count($this->cachedTranslations)) {
+        if (count($this->cachedTranslations)) {
             $this->translations()->saveMany($this->cachedTranslations);
         }
 
-        return $saved;
-    }
-
-    /**
-     * Update the model in the database.
-     *
-     * @param array $attributes
-     *
-     * @return bool|int
-     */
-    public function update(array $attributes = [])
-    {
-        $updated = parent::update($attributes);
-
-        if ($updated) {
-            $this->translations()->saveMany($this->cachedTranslations);
-        }
-
-        return $updated;
+        return parent::finishSave($options);
     }
 
     /**
