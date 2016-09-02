@@ -181,6 +181,13 @@ class TranslatorTest extends AbstractTestCase
         $this->assertSame(0, ArticleTranslation::count());
     }
 
+    public function testUpdateTranslationMakesBaseModelDirty()
+    {
+        $article = Article::first();
+        $article->title = "A new title";
+        $this->assertTrue($article->isDirty());
+    }
+
     protected function getProtectedMethod($instance, $method, $parameters = null)
     {
         $rc = new ReflectionClass($instance);
