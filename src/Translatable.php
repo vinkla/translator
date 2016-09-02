@@ -186,13 +186,7 @@ trait Translatable
      */
     public function isDirty($attributes = null)
     {
-        $dirty = parent::isDirty();
-
-        if (!$dirty) {
-            return count($this->cache) > 0;
-        }
-
-        return $dirty;
+        return parent::isDirty($attributes) ?: count($this->cache) > 0;
     }
 
     /**
