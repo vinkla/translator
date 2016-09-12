@@ -187,6 +187,13 @@ class TranslatorTest extends AbstractTestCase
         $article->title = 'A new title';
         $this->assertTrue($article->isDirty());
     }
+    
+    public function testIsDirtyCallsBaseModelWhenUsedWithAttributes()
+    {
+        $article = Article::first();
+        $article->title = 'A new title';
+        $this->assertFalse($article->isDirty('foo'));
+    }
 
     protected function getProtectedMethod($instance, $method, $parameters = null)
     {
