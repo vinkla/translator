@@ -211,6 +211,30 @@ class TranslatorTest extends AbstractTestCase
         }));
     }
 
+    public function testWithTranslationsScopeWithNoParameter()
+    {
+        $article = Article::take(1)->withTranslations()->get()->first();
+
+        $this->assertTrue($article->relationLoaded('translations'));
+
+        $this->assertSame(0, $this->getQueryCount(function () use ($article) {
+            $this->assertSame(1, $article->translations->count());
+            $this->assertSame('Använd kraften Harry', $article->title);
+        }));
+    }
+
+    public function testWithTranslationsScopeWithParameter()
+    {
+        $article = Article::take(1)->withTranslations('en')->get()->first();
+
+        $this->assertTrue($article->relationLoaded('translations'));
+
+        $this->assertSame(0, $this->getQueryCount(function () use ($article) {
+            $this->assertSame(1, $article->translations->count());
+            $this->assertSame('Use the force Harry', $article->title);
+        }));
+    }
+
     protected function getProtectedMethod($instance, $method, $parameters = null)
     {
         $rc = new ReflectionClass($instance);
