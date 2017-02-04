@@ -90,9 +90,15 @@ trait Translatable
             return $this->cache[$locale];
         }
 
-        $translation = $this->translations()
-            ->where('locale', $locale)
-            ->first();
+        if ($this->relationLoaded('translations')) {
+            $translation = $this->translations
+                ->where('locale', $locale)
+                ->first();
+        } else {
+            $translation = $this->translations()
+                ->where('locale', $locale)
+                ->first();
+        }
 
         if ($translation) {
             $this->cache[$locale] = $translation;
