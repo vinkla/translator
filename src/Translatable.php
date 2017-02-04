@@ -78,7 +78,7 @@ trait Translatable
     }
 
     /**
-     * Get a translation.
+     * Get a translation from cache, loaded relation, or database.
      *
      * @param string $locale
      *
@@ -90,7 +90,7 @@ trait Translatable
             return $this->cache[$locale];
         }
 
-        $translation = $this->translations()
+        $translation = $this->translations
             ->where('locale', $locale)
             ->first();
 
