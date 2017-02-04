@@ -16,7 +16,7 @@ use GrahamCampbell\TestBench\AbstractPackageTestCase;
 use Illuminate\Support\Facades\DB;
 use TranslationTableSeeder;
 
-/*
+/**
  * This is the abstract test case class.
  *
  * @author Vincent Klaiber <hello@vinkla.com>
@@ -25,7 +25,7 @@ abstract class AbstractTestCase extends AbstractPackageTestCase
 {
     protected function getPackageProviders($app)
     {
-        return [PackageServiceProvider::class];
+        return [DatabaseServiceProvider::class];
     }
 
     /**
