@@ -23,6 +23,11 @@ use TranslationTableSeeder;
  */
 abstract class AbstractTestCase extends AbstractPackageTestCase
 {
+    protected function getPackageProviders($app)
+    {
+        return [PackageServiceProvider::class];
+    }
+
     /**
      * Define environment setup.
      *
@@ -44,8 +49,6 @@ abstract class AbstractTestCase extends AbstractPackageTestCase
     public function runDatabaseMigrations()
     {
         DB::statement(DB::raw('PRAGMA foreign_keys=1'));
-
-        $this->loadMigrationsFrom(realpath(__DIR__.'/database/migrations'));
 
         $this->artisan('migrate');
 

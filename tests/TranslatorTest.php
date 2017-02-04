@@ -123,15 +123,15 @@ class TranslatorTest extends AbstractTestCase
 
         $article = Article::create(['title' => 'Whoa. This is heavy.', 'thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
 
-        $this->seeInDatabase('article_translations', ['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
-        $this->seeInDatabase('articles', ['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
+        $this->assertDatabaseHas('articles', ['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
 
         App::setLocale('de');
 
         $article = Article::create(['title' => 'Whoa. Das ist schwer.', 'thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
 
-        $this->seeInDatabase('article_translations', ['title' => 'Whoa. Das ist schwer.', 'article_id' => $article->id, 'locale' => 'de']);
-        $this->seeInDatabase('articles', ['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. Das ist schwer.', 'article_id' => $article->id, 'locale' => 'de']);
+        $this->assertDatabaseHas('articles', ['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
     }
 
     public function testUpdate()
@@ -142,19 +142,19 @@ class TranslatorTest extends AbstractTestCase
         $article->title = 'Whoa. This is heavy.';
         $article->save();
 
-        $this->seeInDatabase('article_translations', ['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
+        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
 
         App::setLocale('sv');
 
         $article->update(['title' => 'Whoa. Detta är tung.']);
 
-        $this->seeInDatabase('article_translations', ['title' => 'Whoa. Detta är tung.', 'article_id' => $article->id, 'locale' => 'sv']);
+        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. Detta är tung.', 'article_id' => $article->id, 'locale' => 'sv']);
 
         App::setLocale('de');
 
         $article->update(['title' => 'Whoa. Das ist schwer.']);
 
-        $this->seeInDatabase('article_translations', ['title' => 'Whoa. Das ist schwer.', 'article_id' => $article->id, 'locale' => 'de']);
+        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. Das ist schwer.', 'article_id' => $article->id, 'locale' => 'de']);
     }
 
     public function testDeleteTranslations()
