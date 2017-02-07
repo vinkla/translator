@@ -183,39 +183,16 @@ Fetch translated attributes without fallback support.
 $article->translate('de', false)->title;
 ```
 
-Eager load translations.
+Fetch a resource and eager load the translations.
 
 ```php
 $articles = Article::with('translations')->get();
-
-// translations loaded
-
-foreach ($articles as $article) {
-    $article->title;
-}
 ```
 
-> This prevents the "N + 1 problem":
-> ```php
->     $articles = Article::all();
->     
->     foreach ($articles as $article) {
->         $article->title;
->     }
->
->     // a database query is triggered for each article 
-> ```
-
-Use `withTranslations` scope to eager load the translations for a single locale.
+Fetch a resource and eager load the translations for a single locale.
 
 ```php
-$articles = Article::withTranslations()->get(); // or Article::withTranslations('en')->get();
-
-// translations loaded
-
-foreach ($articles as $article) {
-    echo $article->title;
-}
+$articles = Article::withTranslations('en')->get();
 ```
 
 Create instance with translated attributes.
