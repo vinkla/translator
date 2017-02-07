@@ -189,6 +189,52 @@ class TranslatorTest extends AbstractTestCase
         $this->assertSame(['title' => 'A new title'], $article->getDirtyTranslations());
     }
 
+    public function testNoEagerLoad()
+    {
+        $id = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg'])->id;
+        ArticleTranslation::create(['title' => 'Whoa. This is heavy.', 'article_id' => $id, 'locale' => 'en']);
+        ArticleTranslation::create(['title' => 'Whoa. Detta är tung.', 'article_id' => $id, 'locale' => 'sv']);
+
+        $this->assertSame(Article::count() + 1, $this->getQueryCount(function () {
+            Article::all()->pluck('title');
+        }));
+    }
+
+    public function testEagerLoad()
+    {
+        $id = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg'])->id;
+        ArticleTranslation::create(['title' => 'Whoa. This is heavy.', 'article_id' => $id, 'locale' => 'en']);
+        ArticleTranslation::create(['title' => 'Whoa. Detta är tung.', 'article_id' => $id, 'locale' => 'sv']);
+
+        $this->assertSame(2, $this->getQueryCount(function () {
+            Article::with('translations')->get()->pluck('title');
+        }));
+    }
+
+    public function testWithTranslationsScopeWithNoParameter()
+    {
+        $article = Article::take(1)->withTranslations()->get()->first();
+
+        $this->assertTrue($article->relationLoaded('translations'));
+
+        $this->assertSame(0, $this->getQueryCount(function () use ($article) {
+            $this->assertSame(1, $article->translations->count());
+            $this->assertSame('Använd kraften Harry', $article->title);
+        }));
+    }
+
+    public function testWithTranslationsScopeWithParameter()
+    {
+        $article = Article::take(1)->withTranslations('en')->get()->first();
+
+        $this->assertTrue($article->relationLoaded('translations'));
+
+        $this->assertSame(0, $this->getQueryCount(function () use ($article) {
+            $this->assertSame(1, $article->translations->count());
+            $this->assertSame('Use the force Harry', $article->title);
+        }));
+    }
+
     protected function getProtectedMethod($instance, $method, $parameters = null)
     {
         $rc = new ReflectionClass($instance);
@@ -205,5 +251,20 @@ class TranslatorTest extends AbstractTestCase
         $property->setAccessible(true);
 
         return $property->getValue($instance);
+    }
+
+    protected function getQueryCount($callback)
+    {
+        DB::enableQueryLog();
+
+        $callback();
+
+        $count = count(DB::getQueryLog());
+
+        DB::disableQueryLog();
+
+        DB::flushQueryLog();
+
+        return $count;
     }
 }

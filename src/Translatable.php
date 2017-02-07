@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Vinkla\Translator;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\App;
@@ -31,6 +32,23 @@ trait Translatable
      * @var array
      */
     protected $cache = [];
+
+    /**
+     * Query scope for eager-loading the translations for current (or a given) locale.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $builder
+     * @param string $locale
+     *
+     * @return void
+     */
+    public static function scopeWithTranslations(Builder $builder, string $locale = null)
+    {
+        $locale = $locale ?: (new static)->getLocale();
+
+        $builder->with(['translations' => function (HasMany $query) use ($locale) {
+            $query->where('locale', $locale);
+        }]);
+    }
 
     /**
      * Get a translation.
@@ -90,9 +108,15 @@ trait Translatable
             return $this->cache[$locale];
         }
 
-        $translation = $this->translations()
-            ->where('locale', $locale)
-            ->first();
+        if ($this->relationLoaded('translations')) {
+            $translation = $this->translations
+                ->where('locale', $locale)
+                ->first();
+        } else {
+            $translation = $this->translations()
+                ->where('locale', $locale)
+                ->first();
+        }
 
         if ($translation) {
             $this->cache[$locale] = $translation;
