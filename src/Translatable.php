@@ -37,7 +37,7 @@ trait Translatable
      * Query scope for eager-loading the translations for current (or a given) locale.
      *
      * @param \Illuminate\Database\Eloquent\Builder $builder
-     * @param string $locale
+     * @param string|null $locale
      *
      * @return void
      */
