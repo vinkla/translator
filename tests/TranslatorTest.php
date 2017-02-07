@@ -213,7 +213,7 @@ class TranslatorTest extends AbstractTestCase
 
     public function testWithTranslationsScopeWithNoParameter()
     {
-        $article = Article::take(1)->withTranslations()->get()->first();
+        $article = Article::withTranslations()->first();
 
         $this->assertTrue($article->relationLoaded('translations'));
 
@@ -225,7 +225,7 @@ class TranslatorTest extends AbstractTestCase
 
     public function testWithTranslationsScopeWithParameter()
     {
-        $article = Article::take(1)->withTranslations('en')->get()->first();
+        $article = Article::withTranslations('en')->first();
 
         $this->assertTrue($article->relationLoaded('translations'));
 
