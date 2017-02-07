@@ -191,9 +191,9 @@ class TranslatorTest extends AbstractTestCase
 
     public function testNoEagerLoad()
     {
-        $id = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg'])->id;
-        ArticleTranslation::create(['title' => 'Whoa. This is heavy.', 'article_id' => $id, 'locale' => 'en']);
-        ArticleTranslation::create(['title' => 'Whoa. Detta är tung.', 'article_id' => $id, 'locale' => 'sv']);
+        $article = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        ArticleTranslation::create(['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
+        ArticleTranslation::create(['title' => 'Whoa. Detta är tung.', 'article_id' => $article->id, 'locale' => 'sv']);
 
         $this->assertSame(Article::count() + 1, $this->getQueryCount(function () {
             Article::all()->pluck('title');
@@ -202,9 +202,9 @@ class TranslatorTest extends AbstractTestCase
 
     public function testEagerLoad()
     {
-        $id = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg'])->id;
-        ArticleTranslation::create(['title' => 'Whoa. This is heavy.', 'article_id' => $id, 'locale' => 'en']);
-        ArticleTranslation::create(['title' => 'Whoa. Detta är tung.', 'article_id' => $id, 'locale' => 'sv']);
+        $article = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        ArticleTranslation::create(['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
+        ArticleTranslation::create(['title' => 'Whoa. Detta är tung.', 'article_id' => $article->id, 'locale' => 'sv']);
 
         $this->assertSame(2, $this->getQueryCount(function () {
             Article::with('translations')->get()->pluck('title');
