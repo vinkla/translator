@@ -12,15 +12,15 @@
 namespace Vinkla\Tests\Translator;
 
 use Illuminate\Support\Facades\App;
-use Vinkla\Tests\Translator\Models\Article;
+use Vinkla\Tests\Translator\Models\ArticleTranslationsWithAnonymousClass as Article;
 use Vinkla\Tests\Translator\Models\ArticleTranslation;
 
 /**
- * This is the translator test class.
+ * This is the test class for translations configuration with anonymous class.
  *
- * @author Vincent Klaiber <hello@vinkla.com>
+ * @author Alejandro Peinó <alepeino@gmail.com>
  */
-class TranslatorTest extends AbstractTestCase
+class ConfigTranslationsWithAnonymousClassTest extends AbstractTestCase
 {
     public function testHasMany()
     {

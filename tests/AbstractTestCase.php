@@ -14,6 +14,8 @@ namespace Vinkla\Tests\Translator;
 use ReflectionClass;
 use ArticleTableSeeder;
 use TranslationTableSeeder;
+use CountryTableSeeder;
+use CountryTranslationsTableSeeder;
 use Illuminate\Support\Facades\DB;
 use GrahamCampbell\TestBench\AbstractPackageTestCase;
 
@@ -65,6 +67,8 @@ abstract class AbstractTestCase extends AbstractPackageTestCase
     {
         $this->seed(ArticleTableSeeder::class);
         $this->seed(TranslationTableSeeder::class);
+        $this->seed(CountryTableSeeder::class);
+        $this->seed(CountryTranslationsTableSeeder::class);
     }
 
     protected function getProtectedMethod($instance, $method, $parameters = null)
