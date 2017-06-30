@@ -10,7 +10,7 @@
  */
 
 use Illuminate\Database\Seeder;
-use Vinkla\Tests\Translator\Article;
+use Vinkla\Tests\Translator\Models\Article;
 
 /**
  * This is the article table seeder class.

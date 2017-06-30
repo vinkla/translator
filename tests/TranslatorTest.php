@@ -12,6 +12,8 @@
 namespace Vinkla\Tests\Translator;
 
 use Illuminate\Support\Facades\App;
+use Vinkla\Tests\Translator\Models\Article;
+use Vinkla\Tests\Translator\Models\ArticleTranslation;
 
 /**
  * This is the translator test class.
