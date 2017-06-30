@@ -12,8 +12,6 @@
 namespace Vinkla\Tests\Translator;
 
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
-use ReflectionClass;
 
 /**
  * This is the translator test class.
@@ -95,10 +93,9 @@ class TranslatorTest extends AbstractTestCase
         $this->assertCount(2, $cache);
         $this->assertSame($translations, $cache);
 
-        DB::enableQueryLog();
-
-        $article->translate('en');
-        $this->assertEmpty(DB::getQueryLog());
+        $this->assertQueryCount(0, function () use ($article) {
+            $article->translate('en');
+        });
     }
 
     public function testGetAttributes()
@@ -265,36 +262,5 @@ class TranslatorTest extends AbstractTestCase
             $this->assertSame(1, $article->translations->count());
             $this->assertSame('Use the force Harry', $article->title);
         });
-    }
-
-    protected function getProtectedMethod($instance, $method, $parameters = null)
-    {
-        $rc = new ReflectionClass($instance);
-        $method = $rc->getMethod($method);
-        $method->setAccessible(true);
-
-        return $method->invoke($instance, $parameters);
-    }
-
-    protected function getProtectedProperty($instance, $property)
-    {
-        $rc = new ReflectionClass($instance);
-        $property = $rc->getProperty($property);
-        $property->setAccessible(true);
-
-        return $property->getValue($instance);
-    }
-
-    protected function assertQueryCount($count, $callback)
-    {
-        DB::enableQueryLog();
-
-        $callback();
-
-        $this->assertSame($count, count(DB::getQueryLog()));
-
-        DB::disableQueryLog();
-
-        DB::flushQueryLog();
     }
 }

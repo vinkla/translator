@@ -11,10 +11,11 @@
 
 namespace Vinkla\Tests\Translator;
 
+use ReflectionClass;
 use ArticleTableSeeder;
-use GrahamCampbell\TestBench\AbstractPackageTestCase;
-use Illuminate\Support\Facades\DB;
 use TranslationTableSeeder;
+use Illuminate\Support\Facades\DB;
+use GrahamCampbell\TestBench\AbstractPackageTestCase;
 
 /**
  * This is the abstract test case class.
@@ -64,5 +65,36 @@ abstract class AbstractTestCase extends AbstractPackageTestCase
     {
         $this->seed(ArticleTableSeeder::class);
         $this->seed(TranslationTableSeeder::class);
+    }
+
+    protected function getProtectedMethod($instance, $method, $parameters = null)
+    {
+        $rc = new ReflectionClass($instance);
+        $method = $rc->getMethod($method);
+        $method->setAccessible(true);
+
+        return $method->invoke($instance, $parameters);
+    }
+
+    protected function getProtectedProperty($instance, $property)
+    {
+        $rc = new ReflectionClass($instance);
+        $property = $rc->getProperty($property);
+        $property->setAccessible(true);
+
+        return $property->getValue($instance);
+    }
+
+    protected function assertQueryCount($count, $callback)
+    {
+        DB::enableQueryLog();
+
+        $callback();
+
+        $this->assertCount($count, DB::getQueryLog());
+
+        DB::disableQueryLog();
+
+        DB::flushQueryLog();
     }
 }
