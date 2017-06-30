@@ -235,9 +235,9 @@ trait Translatable
 
         foreach ($this->cache as $translation) {
             foreach ($translation->attributes as $key => $value) {
-                if (!array_key_exists($key, $translation->original)) {
-                    $dirty[$key] = $value;
-                } elseif ($value !== $translation->original[$key] && !$translation->originalIsNumericallyEquivalent($key)) {
+                if (!array_key_exists($key, $translation->original)
+                    || ($value !== $translation->original[$key] && !$translation->originalIsNumericallyEquivalent($key))
+                ) {
                     $dirty[$key] = $value;
                 }
             }
