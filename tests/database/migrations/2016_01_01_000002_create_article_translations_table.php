@@ -14,7 +14,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * This is the article translations table seeder class.
+ * This is the article translations table migration class.
  *
  * @author Vincent Klaiber <hello@vinkla.com>
  */

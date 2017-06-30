@@ -21,9 +21,9 @@ use Illuminate\Database\Eloquent\Model;
 class ArticleTranslation extends Model
 {
     /**
-     * A list of methods protected from mass assignment.
+     * The attributes that aren't mass assignable.
      *
-     * @var string[]
+     * @var array
      */
     protected $guarded = ['_token', '_method'];
 }

@@ -25,9 +25,9 @@ class Article extends Model
     use Translatable;
 
     /**
-     * A list of methods protected from mass assignment.
+     * The attributes that aren't mass assignable.
      *
-     * @var string[]
+     * @var array
      */
     protected $guarded = ['_token', '_method'];
 
