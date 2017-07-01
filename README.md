@@ -32,129 +32,118 @@ Require this package, with [Composer](https://getcomposer.org/), in the root dir
 $ composer require vinkla/translator
 ```
 
-Create a new migration for the translations. In our case we want to translate the `articles` table.
+> That's it! No need for config files or loading service providers.
 
-```bash
-$ php artisan make:migration create_article_translations_table
-```
 
-Make sure you add the `article_id` and `locale` columns. Also, make them unique.
+## Setup
 
-```php
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+- In this example we have *articles*, the *titles* of which should be translated.
 
-/**
- * This is the article translations table seeder class.
- *
- * @author Vincent Klaiber <hello@vinkla.com>
- */
-class CreateArticleTranslationsTable extends Migration
-{
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        Schema::create('article_translations', function (Blueprint $table) {
-            $table->increments('id');
+- You should already have the `articles` table, but keep the `title` column in a separate table:
 
-            $table->string('title'); // Translated column.
-
-            $table->integer('article_id')->unsigned()->index();
-            $table->foreign('article_id')
-                ->references('id')
-                ->on('articles')
-                ->onDelete('cascade');
-
-            $table->string('locale')->index();
-
-            $table->unique(['article_id', 'locale']);
-
-            $table->timestamps();
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        Schema::drop('article_translations');
-    }
-}
-```
-
-Create a new empty `ArticleTranslation` Eloquent model.
+- Create an `article_translations` table, with `article_id` and `locale` columns (make each combination unique), and of course the `title` column.
 
 ```php
-use Illuminate\Database\Eloquent\Model;
+Schema::create('article_translations', function (Blueprint $table) {
+    $table->increments('id');
+    $table->integer('article_id')->unsigned()->index();
+    $table->string('locale')->index();
+    $table->string('title'); // Translated column.
+    $table->timestamps();
 
-/**
- * This is the article translation eloquent model class.
- *
- * @author Vincent Klaiber <hello@vinkla.com>
- */
-class ArticleTranslation extends Model
-{
-    /**
-     * A list of methods protected from mass assignment.
-     *
-     * @var string[]
-     */
-    protected $guarded = ['_token', '_method'];
-}
+    $table->unique(['article_id', 'locale']);
 
+    $table->foreign('article_id')
+        ->references('id')
+        ->on('articles')
+        ->onDelete('cascade');
+});
 ```
 
-Add the `Translatable` trait and the `IsTranslatable` interface to the `Article` Eloquent model. Add the has-many `translations()` relation method and fill the `$translatable` array with translatable attributes.
+- Add the `Translatable` trait to the `Article` Eloquent model, and fill the `$translatable` array with the translatable attributes.
 
 ```php
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Vinkla\Translator\Translatable;
-
-/**
- * This is the article eloquent model class.
- *
- * @author Vincent Klaiber <hello@vinkla.com>
- */
 class Article extends Model
 {
     use Translatable;
 
-    /**
-     * A list of methods protected from mass assignment.
-     *
-     * @var string[]
-     */
-    protected $guarded = ['_token', '_method'];
-
-    /**
-     * List of translated attributes.
-     *
-     * @var string[]
-     */
     protected $translatable = ['title'];
-
-    /**
-     * Get the translations relation.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function translations(): HasMany
-    {
-        return $this->hasMany(ArticleTranslation::class);
-    }
 }
 ```
 
+- Finally, we need a way to setup the relation:
+
+    - If you leave it as-is, we will use the defaults, that is, the translations
+    will be searched in a table named `{lower case model name}_translations`
+    (in this example, `article_translations`), and the translation objects will
+    behave like default Eloquent objects (no fillable attributes, using timestamps, etc.)
+
+    - If you need to change this, you can define the translations model overriding
+    the `getTranslationsClass` method:
+
+        ```php
+        class Article extends Model
+        {
+            use Translatable;
+
+            protected $translatable = ['title'];
+
+            public function getTranslationsClass()
+            {
+                return new class() extends Model {
+                    protected $table = 'article_translations';
+                    protected $fillable = ['title'];
+                    public $timestamps = false;
+                };
+            }
+        }
+        ```
+
+    - Instead of an anonymous class, you can create a dedicated class for the translations:
+
+        ```php
+        class Article extends Model
+        {
+            use Translatable;
+
+            protected $translatable = ['title'];
+
+            public function getTranslationsClass()
+            {
+                return ArticleTranslation::class;
+            }
+        }
+
+        //
+
+        class ArticleTranslation extends Model
+        {
+            protected $table = 'art_translations';
+            protected $fillable = ['title'];
+            public $timestamps = false;
+        }
+        ```
+
+    - Finally, you can define a `translations` relation as you would any other Eloquent relation.
+    This allows most detailed configuration (for instance, if you need to use non-default
+    foreign / primary keys column names) and will also require a separate class for the translations:
+
+        ```php
+        class Article extends Model
+        {
+            use Translatable;
+
+            protected $translatable = ['title'];
+
+            public function translations()
+            {
+                return $this->hasMany(ArticleTranslation::class, 'IdArticle', 'Id');
+            }
+        }
+        ```
+
 Now you're ready to start translating your Eloquent models!
+
 
 ## Usage
 
@@ -182,13 +171,19 @@ Fetch translated attributes without fallback support.
 $article->translate('de', false)->title;
 ```
 
-Fetch resources and eager load the translations.
+Load all translations eagerly.
 
 ```php
 $articles = Article::with('translations')->get();
 ```
 
-Fetch resources and eager load the translations for a single locale.
+Eager load the translations for current locale.
+
+```php
+$articles = Article::withTranslations()->get();
+```
+
+Eager load the translations for a single locale.
 
 ```php
 $articles = Article::withTranslations('en')->get();
