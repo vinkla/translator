@@ -11,9 +11,9 @@
 
 namespace Vinkla\Tests\Translator;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\App;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Vinkla\Tests\Translator\Models\Country;
 
 /**

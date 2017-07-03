@@ -11,13 +11,13 @@
 
 namespace Vinkla\Tests\Translator;
 
-use ReflectionClass;
 use ArticleTableSeeder;
-use TranslationTableSeeder;
 use CountryTableSeeder;
 use CountryTranslationsTableSeeder;
-use Illuminate\Support\Facades\DB;
 use GrahamCampbell\TestBench\AbstractPackageTestCase;
+use Illuminate\Support\Facades\DB;
+use ReflectionClass;
+use TranslationTableSeeder;
 
 /**
  * This is the abstract test case class.

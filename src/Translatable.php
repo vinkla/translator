@@ -308,7 +308,6 @@ trait Translatable
         return $this->hasMany($translationsClass);
     }
 
-
     /**
      * Get the class name or an anonymous class of the translations model.
      *
@@ -316,7 +315,7 @@ trait Translatable
      */
     public function getTranslationsClass()
     {
-        return new class () extends Model {
+        return new class() extends Model {
             static $translationsTable;
 
             public function getTable()
