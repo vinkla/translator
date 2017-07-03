@@ -13,25 +13,26 @@ namespace Vinkla\Tests\Translator;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
-use ReflectionClass;
 
 /**
- * This is the translator test class.
+ * This trait provides common tests for different configurations of article translations.
  *
- * @author Vincent Klaiber <hello@vinkla.com>
+ * @author Alejandro Peinó <alepeino@gmail.com>
  */
-class TranslatorTest extends AbstractTestCase
+trait TestsArticleTranslations
 {
+    protected $classUnderTest;
+
     public function testHasMany()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
 
         $this->assertSame(2, $article->translations()->count());
     }
 
     public function testTranslate()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
 
         $this->assertSame($article->translate('en')->title, 'Use the force Harry');
         $this->assertSame($article->translate('sv')->title, 'Använd kraften Harry');
@@ -39,14 +40,14 @@ class TranslatorTest extends AbstractTestCase
 
     public function testEmptyTranslation()
     {
-        $article = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        $article = $this->classUnderTest::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
 
         $this->assertNull($article->title);
     }
 
     public function testLocale()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
 
         $locale = $this->getProtectedMethod($article, 'getLocale');
         $this->assertSame('sv', $locale);
@@ -57,7 +58,7 @@ class TranslatorTest extends AbstractTestCase
 
     public function testFallback()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
 
         $this->assertSame($article->translate('de')->title, 'Use the force Harry');
         $this->assertSame($article->translate('de', true)->title, 'Use the force Harry');
@@ -74,7 +75,7 @@ class TranslatorTest extends AbstractTestCase
 
     public function testSetLocale()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
 
         $this->assertSame($article->title, 'Använd kraften Harry');
         $this->assertSame($article->translate()->title, 'Använd kraften Harry');
@@ -87,7 +88,7 @@ class TranslatorTest extends AbstractTestCase
 
     public function testCachedTranslations()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
 
         $translations = ['en' => $article->translate('en'), 'sv' => $article->translate('sv')];
         $cache = $this->getProtectedProperty($article, 'cache');
@@ -95,15 +96,14 @@ class TranslatorTest extends AbstractTestCase
         $this->assertCount(2, $cache);
         $this->assertSame($translations, $cache);
 
-        DB::enableQueryLog();
-
-        $article->translate('en');
-        $this->assertEmpty(DB::getQueryLog());
+        $this->assertQueryCount(0, function () use ($article) {
+            $article->translate('en');
+        });
     }
 
     public function testGetAttributes()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
 
         $this->assertSame($article->translate()->title, 'Använd kraften Harry');
         $this->assertSame($article->title, 'Använd kraften Harry');
@@ -113,7 +113,7 @@ class TranslatorTest extends AbstractTestCase
     {
         App::setLocale('en');
 
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
 
         $this->assertSame($article->title, 'Use the force Harry');
 
@@ -128,16 +128,28 @@ class TranslatorTest extends AbstractTestCase
     {
         App::setLocale('en');
 
-        $article = Article::create(['title' => 'Whoa. This is heavy.', 'thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        $article = $this->classUnderTest::create([
+            'title' => 'Whoa. This is heavy.',
+            'thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg',
+        ]);
 
-        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
+        $this->assertDatabaseHas('article_translations', [
+            'title' => 'Whoa. This is heavy.',
+            'article_id' => $article->id, 'locale' => 'en',
+        ]);
         $this->assertDatabaseHas('articles', ['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
 
         App::setLocale('de');
 
-        $article = Article::create(['title' => 'Whoa. Das ist schwer.', 'thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        $article = $this->classUnderTest::create([
+            'title' => 'Whoa. Das ist schwer.',
+            'thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg',
+        ]);
 
-        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. Das ist schwer.', 'article_id' => $article->id, 'locale' => 'de']);
+        $this->assertDatabaseHas('article_translations', [
+            'title' => 'Whoa. Das ist schwer.',
+            'article_id' => $article->id, 'locale' => 'de',
+        ]);
         $this->assertDatabaseHas('articles', ['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
     }
 
@@ -145,44 +157,53 @@ class TranslatorTest extends AbstractTestCase
     {
         App::setLocale('en');
 
-        $article = Article::find(1);
+        $article = $this->classUnderTest::find(1);
         $article->title = 'Whoa. This is heavy.';
         $article->save();
 
-        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
+        $this->assertDatabaseHas('article_translations', [
+            'title' => 'Whoa. This is heavy.',
+            'article_id' => $article->id, 'locale' => 'en',
+        ]);
 
         App::setLocale('sv');
 
         $article->update(['title' => 'Whoa. Detta är tung.']);
 
-        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. Detta är tung.', 'article_id' => $article->id, 'locale' => 'sv']);
+        $this->assertDatabaseHas('article_translations', [
+            'title' => 'Whoa. Detta är tung.',
+            'article_id' => $article->id, 'locale' => 'sv',
+        ]);
 
         App::setLocale('de');
 
         $article->update(['title' => 'Whoa. Das ist schwer.']);
 
-        $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. Das ist schwer.', 'article_id' => $article->id, 'locale' => 'de']);
+        $this->assertDatabaseHas('article_translations', [
+            'title' => 'Whoa. Das ist schwer.',
+            'article_id' => $article->id, 'locale' => 'de',
+        ]);
     }
 
     public function testDeleteTranslations()
     {
-        Article::first()->translations()->delete();
+        $this->classUnderTest::first()->translations()->delete();
 
-        $this->assertSame(1, Article::count());
-        $this->assertSame(0, ArticleTranslation::count());
+        $this->assertSame(1, $this->classUnderTest::count());
+        $this->assertSame(0, DB::table('article_translations')->count());
     }
 
     public function testDeleteParent()
     {
-        Article::first()->delete();
+        $this->classUnderTest::first()->delete();
 
-        $this->assertSame(0, Article::count());
-        $this->assertSame(0, ArticleTranslation::count());
+        $this->assertSame(0, $this->classUnderTest::count());
+        $this->assertSame(0, DB::table('article_translations')->count());
     }
 
     public function testIsDirty()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
         $article->title = 'A new title';
 
         $this->assertTrue($article->isDirty());
@@ -192,7 +213,7 @@ class TranslatorTest extends AbstractTestCase
 
     public function testGetDirtyTranslations()
     {
-        $article = Article::first();
+        $article = $this->classUnderTest::first();
         $article->title = 'A new title';
 
         $this->assertSame(['title' => 'A new title'], $article->getDirtyTranslations());
@@ -200,31 +221,43 @@ class TranslatorTest extends AbstractTestCase
 
     public function testNoEagerLoad()
     {
-        $article = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        $article = $this->classUnderTest::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
 
-        ArticleTranslation::create(['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
-        ArticleTranslation::create(['title' => 'Whoa. Detta är tung.', 'article_id' => $article->id, 'locale' => 'sv']);
+        DB::table('article_translations')->insert([
+            'title' => 'Whoa. This is heavy.',
+            'article_id' => $article->id, 'locale' => 'en',
+        ]);
+        DB::table('article_translations')->insert([
+            'title' => 'Whoa. Detta är tung.',
+            'article_id' => $article->id, 'locale' => 'sv',
+        ]);
 
-        $this->assertQueryCount(Article::count() + 1, function () {
-            Article::all()->pluck('title');
+        $this->assertQueryCount($this->classUnderTest::count() + 1, function () {
+            $this->classUnderTest::all()->pluck('title');
         });
     }
 
     public function testEagerLoad()
     {
-        $article = Article::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
+        $article = $this->classUnderTest::create(['thumbnail' => 'http://i.imgur.com/tyfwfEX.jpg']);
 
-        ArticleTranslation::create(['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
-        ArticleTranslation::create(['title' => 'Whoa. Detta är tung.', 'article_id' => $article->id, 'locale' => 'sv']);
+        DB::table('article_translations')->insert([
+            'title' => 'Whoa. This is heavy.',
+            'article_id' => $article->id, 'locale' => 'en',
+        ]);
+        DB::table('article_translations')->insert([
+            'title' => 'Whoa. Detta är tung.',
+            'article_id' => $article->id, 'locale' => 'sv',
+        ]);
 
         $this->assertQueryCount(2, function () {
-            Article::with('translations')->get()->pluck('title');
+            $this->classUnderTest::with('translations')->get()->pluck('title');
         });
     }
 
     public function testWithTranslationsScopeWithNoParameter()
     {
-        $article = Article::withTranslations()->first();
+        $article = $this->classUnderTest::withTranslations()->first();
 
         $this->assertTrue($article->relationLoaded('translations'));
 
@@ -236,7 +269,7 @@ class TranslatorTest extends AbstractTestCase
 
     public function testWithTranslationsScopeWithParameter()
     {
-        $article = Article::withTranslations('en')->first();
+        $article = $this->classUnderTest::withTranslations('en')->first();
 
         $this->assertTrue($article->relationLoaded('translations'));
 
@@ -244,36 +277,5 @@ class TranslatorTest extends AbstractTestCase
             $this->assertSame(1, $article->translations->count());
             $this->assertSame('Use the force Harry', $article->title);
         });
-    }
-
-    protected function getProtectedMethod($instance, $method, $parameters = null)
-    {
-        $rc = new ReflectionClass($instance);
-        $method = $rc->getMethod($method);
-        $method->setAccessible(true);
-
-        return $method->invoke($instance, $parameters);
-    }
-
-    protected function getProtectedProperty($instance, $property)
-    {
-        $rc = new ReflectionClass($instance);
-        $property = $rc->getProperty($property);
-        $property->setAccessible(true);
-
-        return $property->getValue($instance);
-    }
-
-    protected function assertQueryCount($count, $callback)
-    {
-        DB::enableQueryLog();
-
-        $callback();
-
-        $this->assertSame($count, count(DB::getQueryLog()));
-
-        DB::disableQueryLog();
-
-        DB::flushQueryLog();
     }
 }

@@ -10,14 +10,14 @@
  */
 
 use Illuminate\Database\Seeder;
-use Vinkla\Tests\Translator\Models\Article;
+use Vinkla\Tests\Translator\Models\Country;
 
 /**
- * This is the article table seeder class.
+ * This is the countries table seeder class.
  *
- * @author Vincent Klaiber <hello@vinkla.com>
+ * @author Alejandro Peinó <alepeino@gmail.com>
  */
-final class ArticleTableSeeder extends Seeder
+final class CountryTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -26,6 +26,6 @@ final class ArticleTableSeeder extends Seeder
      */
     public function run()
     {
-        Article::create(['thumbnail' => 'https://i.imgur.com/V2wxB.jpg']);
+        Country::create(['code' => 'SE']);
     }
 }

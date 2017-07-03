@@ -9,10 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Vinkla\Tests\Translator;
+namespace Vinkla\Tests\Translator\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Vinkla\Translator\Translatable;
 
 /**
@@ -20,9 +19,11 @@ use Vinkla\Translator\Translatable;
  *
  * @author Vincent Klaiber <hello@vinkla.com>
  */
-class Article extends Model
+class ArticleTranslationsWithAnonymousClass extends Model
 {
     use Translatable;
+
+    protected $table = 'articles';
 
     /**
      * A list of methods protected from mass assignment.
@@ -39,12 +40,25 @@ class Article extends Model
     protected $translatable = ['title'];
 
     /**
-     * Get the translations relation.
+     * Get the default foreign key name for the model.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return string
      */
-    public function translations(): HasMany
+    public function getForeignKey()
     {
-        return $this->hasMany(ArticleTranslation::class);
+        return 'article_id';
+    }
+
+    /**
+     * Get the class name or an anonymous class of the translations model.
+     *
+     * @return string|\Illuminate\Database\Eloquent\Model
+     */
+    public function getTranslationsClass()
+    {
+        return new class() extends Model {
+            protected $table = 'article_translations';
+            protected $guarded = ['_token', '_method'];
+        };
     }
 }

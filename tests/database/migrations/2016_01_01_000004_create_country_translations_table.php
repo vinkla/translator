@@ -14,11 +14,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * This is the article translations table migration class.
+ * This is the country translations table migration class.
  *
- * @author Vincent Klaiber <hello@vinkla.com>
+ * @author Alejandro Peinó <alepeino@gmail.com>
  */
-final class CreateArticleTranslationsTable extends Migration
+final class CreateCountryTranslationsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -27,17 +27,17 @@ final class CreateArticleTranslationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('article_translations', function (Blueprint $table) {
+        Schema::create('country_translations', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->string('title');
+            $table->string('name');
 
-            $table->integer('article_id')->unsigned()->index();
-            $table->foreign('article_id')->references('id')->on('articles')->onDelete('cascade');
+            $table->string('country_code', 2);
+            $table->foreign('country_code')->references('code')->on('countries')->onDelete('cascade');
 
             $table->string('locale')->index();
 
-            $table->unique(['article_id', 'locale']);
+            $table->unique(['country_code', 'locale']);
 
             $table->timestamps();
         });
@@ -50,10 +50,10 @@ final class CreateArticleTranslationsTable extends Migration
      */
     public function down()
     {
-        Schema::table('article_translations', function (Blueprint $table) {
-            $table->dropForeign(['article_id']);
+        Schema::table('country_translations', function (Blueprint $table) {
+            $table->dropForeign(['country_code']);
         });
 
-        Schema::drop('article_translations');
+        Schema::drop('country_translations');
     }
 }

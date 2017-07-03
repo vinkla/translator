@@ -14,11 +14,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * This is the articles table migration class.
+ * This is the countries table migration class.
  *
- * @author Vincent Klaiber <hello@vinkla.com>
+ * @author Alejandro Peinó <alepeino@gmail.com>
  */
-final class CreateArticlesTable extends Migration
+final class CreateCountriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -27,10 +27,8 @@ final class CreateArticlesTable extends Migration
      */
     public function up()
     {
-        Schema::create('articles', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('thumbnail');
-            $table->timestamps();
+        Schema::create('countries', function (Blueprint $table) {
+            $table->string('code', 2)->primary();
         });
     }
 
@@ -41,6 +39,6 @@ final class CreateArticlesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('articles');
+        Schema::drop('countries');
     }
 }

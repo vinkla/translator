@@ -235,9 +235,9 @@ trait Translatable
 
         foreach ($this->cache as $translation) {
             foreach ($translation->attributes as $key => $value) {
-                if (!array_key_exists($key, $translation->original)) {
-                    $dirty[$key] = $value;
-                } elseif ($value !== $translation->original[$key] && !$translation->originalIsNumericallyEquivalent($key)) {
+                if (!array_key_exists($key, $translation->original)
+                    || ($value !== $translation->original[$key] && !$translation->originalIsNumericallyEquivalent($key))
+                ) {
                     $dirty[$key] = $value;
                 }
             }
@@ -297,5 +297,47 @@ trait Translatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    abstract public function translations(): HasMany;
+    public function translations(): HasMany
+    {
+        $translationsClass = $this->getTranslationsClass();
+
+        if ($translationsClass instanceof Model && !$translationsClass->getTable()) {
+            $translationsClass::$translationsTable = $this->getTranslationsTable();
+        }
+
+        return $this->hasMany($translationsClass);
+    }
+
+    /**
+     * Get the class name or an anonymous class of the translations model.
+     *
+     * @return string|\Illuminate\Database\Eloquent\Model
+     */
+    public function getTranslationsClass()
+    {
+        return new class() extends Model {
+            static $translationsTable;
+
+            public function getTable()
+            {
+                return static::$translationsTable;
+            }
+        };
+    }
+
+    /**
+     * Get the table name used by the translations model.
+     *
+     * @return string|\Illuminate\Database\Eloquent\Model
+     */
+    public function getTranslationsTable()
+    {
+        $translationsClass = $this->getTranslationsClass();
+
+        if (is_string($translationsClass)) {
+            return (new $translationsClass())->getTable();
+        }
+
+        return strtolower(class_basename($this).'_translations');
+    }
 }

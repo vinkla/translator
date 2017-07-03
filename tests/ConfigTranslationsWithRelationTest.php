@@ -9,23 +9,22 @@
  * file that was distributed with this source code.
  */
 
-use Illuminate\Database\Seeder;
+namespace Vinkla\Tests\Translator;
+
 use Vinkla\Tests\Translator\Models\Article;
 
 /**
- * This is the article table seeder class.
+ * This is the translator test class.
  *
  * @author Vincent Klaiber <hello@vinkla.com>
  */
-final class ArticleTableSeeder extends Seeder
+class ConfigTranslationsWithRelationTest extends AbstractTestCase
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    use TestsArticleTranslations;
+
+    protected function setUp()
     {
-        Article::create(['thumbnail' => 'https://i.imgur.com/V2wxB.jpg']);
+        parent::setUp();
+        $this->classUnderTest = Article::class;
     }
 }
