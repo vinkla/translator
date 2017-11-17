@@ -16,7 +16,6 @@ namespace Vinkla\Translator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 
 /**
@@ -255,7 +254,7 @@ trait Translatable
      */
     protected function setLocale(string $locale)
     {
-        App::setLocale($locale);
+        Config::set('app.locale', $locale);
     }
 
     /**
@@ -265,7 +264,7 @@ trait Translatable
      */
     protected function getLocale(): string
     {
-        return App::getLocale();
+        return Config::get('app.locale');
     }
 
     /**
