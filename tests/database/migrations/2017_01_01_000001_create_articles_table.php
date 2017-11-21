@@ -14,7 +14,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * This is the articles table creation migration class.
+ * This is the create articles table migration class.
  *
  * @author Vincent Klaiber <hello@vinkla.com>
  */
