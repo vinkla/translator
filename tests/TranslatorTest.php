@@ -87,6 +87,13 @@ class TranslatorTest extends AbstractTestCase
         $this->assertSame($article->translate()->title, 'Use the force Harry');
     }
 
+    public function testNonExistingReturnsNull()
+    {
+        $article = new Article(['name' => 'Use the force Harry']);
+
+        $this->assertNull($article->translate('no'));
+    }
+
     public function testCachedTranslations()
     {
         $article = Article::first();
