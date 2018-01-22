@@ -87,7 +87,7 @@ trait Translatable
             return $this->translationCache[$locale];
         }
         
-        if (! $this->exists) {
+        if (!$this->exists) {
             return $this->newModelInstance(['locale' => $locale]);
         }
 
@@ -109,7 +109,7 @@ trait Translatable
             return $this->translationCache[$locale];
         }
         
-        if (! $this->exists) {
+        if (!$this->exists) {
             return null;
         }
 
