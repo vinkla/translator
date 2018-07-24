@@ -34,11 +34,11 @@ trait Translatable
 
     public static function bootTranslatable(): void
     {
-        static::updated(function (Model $model) {
+        static::created(function (Model $model) {
             $model->saveTranslations();
         });
 
-        static::created(function (Model $model) {
+        static::updated(function (Model $model) {
             $model->saveTranslations();
         });
     }
