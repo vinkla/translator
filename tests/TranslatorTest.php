@@ -156,7 +156,9 @@ class TranslatorTest extends AbstractTestCase
 
         App::setLocale('en');
 
-        $article->update(['title' => 'Whoa. This is heavy.']);
+        $article = Article::find(1);
+        $article->title = 'Whoa. This is heavy.';
+        $article->save();
 
         $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
 
