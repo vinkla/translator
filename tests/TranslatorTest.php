@@ -152,11 +152,11 @@ class TranslatorTest extends AbstractTestCase
 
     public function testUpdate()
     {
+        $article = Article::find(1);
+
         App::setLocale('en');
 
-        $article = Article::find(1);
-        $article->title = 'Whoa. This is heavy.';
-        $article->save();
+        $article->update(['title' => 'Whoa. This is heavy.']);
 
         $this->assertDatabaseHas('article_translations', ['title' => 'Whoa. This is heavy.', 'article_id' => $article->id, 'locale' => 'en']);
 
