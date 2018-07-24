@@ -39,7 +39,11 @@ trait Translatable
      */
     public static function bootTranslatable(): void
     {
-        static::saved(function (Model $model) {
+        static::created(function (Model $model) {
+            $model->translations()->saveMany($model->translationCache);
+        });
+
+        static::updating(function (Model $model) {
             $model->translations()->saveMany($model->translationCache);
         });
     }

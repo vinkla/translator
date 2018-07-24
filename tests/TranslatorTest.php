@@ -152,8 +152,6 @@ class TranslatorTest extends AbstractTestCase
 
     public function testUpdate()
     {
-        $article = Article::find(1);
-
         App::setLocale('en');
 
         $article = Article::find(1);
